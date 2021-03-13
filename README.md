@@ -11,7 +11,7 @@ git push -u origin main
 # Terminal lines to enter after github is added
 git pull origin main
 
-// If you are creating files that are not already in the GitHub:
+// If you are creating files that are not already in the GitHub:  
 git add ______
 
 git commit -m "first commit"
