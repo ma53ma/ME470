@@ -50,7 +50,7 @@ def get_box_dimensions(outputs, height, width):
 				class_ids.append(class_id)
 	return boxes, confs, class_ids
 
-    def draw_labels(boxes, confs, colors, class_ids, classes, img):
+def draw_labels(boxes, confs, colors, class_ids, classes, img):
 	indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.5, 0.4)
 	font = cv2.FONT_HERSHEY_PLAIN
 	for i in range(len(boxes)):
@@ -62,7 +62,7 @@ def get_box_dimensions(outputs, height, width):
 			cv2.putText(img, label, (x, y - 5), font, 1, color, 1)
 	cv2.imshow("Image", img)
 
-    def image_detect(img_path):  #This is for images only. comment out for video
+def image_detect(img_path):  #This is for images only. comment out for video
 	model, classes, colors, output_layers = load_yolo()
 	image, height, width, channels = load_image(img_path)
 	blob, outputs = detect_objects(image, model, output_layers)
