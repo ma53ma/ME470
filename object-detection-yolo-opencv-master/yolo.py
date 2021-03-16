@@ -1,5 +1,5 @@
 import cv2
-import numpy as np 
+import numpy as np
 import argparse
 import time
 
@@ -24,6 +24,24 @@ def load_yolo():
 	colors = np.random.uniform(0, 255, size=(len(classes), 3))
 	return net, classes, colors, output_layers
 
+''' #something taken from a keras example
+def yolo_body(inputs, num_anchors, num_classes):
+    """Create YOLO_V3 model CNN body in Keras."""
+    darknet = Model(inputs, darknet_body(inputs))
+    x, y1 = make_last_layers(darknet.output, 512, num_anchors*(num_classes+5))
+    x = compose(
+            DarknetConv2D_BN_Leaky(256, (1,1)),
+            UpSampling2D(2))(x)
+    x = Concatenate()([x,darknet.layers[152].output])
+    x, y2 = make_last_layers(x, 256, num_anchors*(num_classes+5))
+    x = compose(
+            DarknetConv2D_BN_Leaky(128, (1,1)),
+            UpSampling2D(2))(x)
+    x = Concatenate()([x,darknet.layers[92].output])
+    x, y3 = make_last_layers(x, 128, num_anchors*(num_classes+5))
+    return Model(inputs, [y1,y2,y3])
+	'''
+
 def load_image(img_path):
 	# image loading
 	img = cv2.imread(img_path)
@@ -45,7 +63,7 @@ def display_blob(blob):
 		for n, imgb in enumerate(b):
 			cv2.imshow(str(n), imgb)
 
-def detect_objects(img, net, outputLayers):			
+def detect_objects(img, net, outputLayers):
 	blob = cv2.dnn.blobFromImage(img, scalefactor=0.00392, size=(320, 320), mean=(0, 0, 0), swapRB=True, crop=False)
 	net.setInput(blob)
 	outputs = net.forward(outputLayers)
@@ -71,8 +89,8 @@ def get_box_dimensions(outputs, height, width):
 				confs.append(float(conf))
 				class_ids.append(class_id)
 	return boxes, confs, class_ids
-			
-def draw_labels(boxes, confs, colors, class_ids, classes, img): 
+
+def draw_labels(boxes, confs, colors, class_ids, classes, img):
 	indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.5, 0.4)
 	font = cv2.FONT_HERSHEY_PLAIN
 	for i in range(len(boxes)):
@@ -84,7 +102,7 @@ def draw_labels(boxes, confs, colors, class_ids, classes, img):
 			cv2.putText(img, label, (x, y - 5), font, 1, color, 1)
 	cv2.imshow("Image", img)
 
-def image_detect(img_path): 
+def image_detect(img_path):
 	model, classes, colors, output_layers = load_yolo()
 	image, height, width, channels = load_image(img_path)
 	blob, outputs = detect_objects(image, model, output_layers)
@@ -144,6 +162,6 @@ if __name__ == '__main__':
 		if args.verbose:
 			print("Opening "+image_path+" .... ")
 		image_detect(image_path)
-	
+
 
 	cv2.destroyAllWindows()
