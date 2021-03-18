@@ -3,6 +3,9 @@ import numpy as np
 import argparse
 import time
 
+
+img_path = "Images/bicycle.jpg"
+
 parser = argparse.ArgumentParser()
 parser.add_argument('--webcam', help="True/False", default=False)
 parser.add_argument('--play_video', help="Tue/False", default=False)
@@ -141,7 +144,6 @@ def start_video(video_path):
 		if key == 27:
 			break
 	cap.release()
-
 
 
 if __name__ == '__main__':
