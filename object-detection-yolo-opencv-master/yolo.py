@@ -3,7 +3,8 @@ import numpy as np
 import argparse
 import time
 
-exec(open("RealSenseStreaming.py").read())
+#This exec line streams from the realsense
+#exec(open("RealSenseStreaming.py").read())
 
 
 parser = argparse.ArgumentParser()
@@ -53,7 +54,8 @@ def load_image(img_path):
 	return img, height, width, channels
 
 def start_webcam():
-	cap = cv2.VideoCapture(0)
+	cap = cv2.VideoCapture(1)
+    #exec(open("RealSenseStreaming.py").read())
 
 	return cap
 
