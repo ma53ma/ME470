@@ -54,7 +54,7 @@ def load_image(img_path):
 	return img, height, width, channels
 
 def start_webcam():
-	cap = cv2.VideoCapture(1)
+	cap = cv2.VideoCapture(0)
     #exec(open("RealSenseStreaming.py").read())
 
 	return cap
