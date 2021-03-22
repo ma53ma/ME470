@@ -18,7 +18,7 @@ args = parser.parse_args()
 
 #Load yolo
 def load_yolo():
-	net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+	net = cv2.dnn.readNet("yolov4.weights", "yolov4.cfg")
 	classes = []
 	with open("coco.names", "r") as f:
 		classes = [line.strip() for line in f.readlines()]
