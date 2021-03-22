@@ -5,4 +5,4 @@ import tensorflow as tf
 
 
 pre_model = tf.keras.models.load_model("sidewalk_weights2.h5")
-pre_model.save("sidewalk_weights2.h5")
+pre_model.save("sidewalk_weights2")
