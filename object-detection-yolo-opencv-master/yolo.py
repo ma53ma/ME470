@@ -18,9 +18,9 @@ args = parser.parse_args()
 
 #Load yolo
 def load_yolo():
-	net = cv2.dnn.readNet("yolov4.weights", "yolov4.cfg")
+	net = cv2.dnn.readNet("custom-yolov4-detector_final.weights", "custom-yolov4-detector.cfg")
 	classes = []
-	with open("coco.names", "r") as f:
+	with open("_classes.txt", "r") as f:
 		classes = [line.strip() for line in f.readlines()]
 
 	layers_names = net.getLayerNames()
@@ -49,7 +49,7 @@ def yolo_body(inputs, num_anchors, num_classes):
 def load_image(img_path):
 	# image loading
 	img = cv2.imread(img_path)
-	img = cv2.resize(img, None, fx=0.4, fy=0.4)
+	img = cv2.resize(img, None, fx=0.2, fy=0.2)
 	height, width, channels = img.shape
 	return img, height, width, channels
 
@@ -83,7 +83,7 @@ def get_box_dimensions(outputs, height, width):
 			scores = detect[5:]
 			class_id = np.argmax(scores)
 			conf = scores[class_id]
-			if conf > 0.3:
+			if conf > .1:
 				center_x = int(detect[0] * width)
 				center_y = int(detect[1] * height)
 				w = int(detect[2] * width)
@@ -98,10 +98,11 @@ def get_box_dimensions(outputs, height, width):
 def draw_labels(boxes, confs, colors, class_ids, classes, img):
 	indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.5, 0.4)
 	font = cv2.FONT_HERSHEY_PLAIN
+    #print(confs)
 	for i in range(len(boxes)):
 		if i in indexes:
 			x, y, w, h = boxes[i]
-			label = str(classes[class_ids[i]])
+			label = str(classes[class_ids[i]]) + " " + str(confs[i])
 			color = colors[i]
 			cv2.rectangle(img, (x,y), (x+w, y+h), color, 2)
 			cv2.putText(img, label, (x, y - 5), font, 1, color, 1)
