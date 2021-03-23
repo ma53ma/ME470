@@ -18,9 +18,11 @@ args = parser.parse_args()
 
 #Load yolo
 def load_yolo():
-	net = cv2.dnn.readNet("custom-yolov4-detector_final.weights", "custom-yolov4-detector.cfg")
+	net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
+	#net = cv2.dnn.readNet("custom-yolov4-detector_final.weights", "custom-yolov4-detector.cfg")
 	classes = []
-	with open("_classes.txt", "r") as f:
+	with open("coco.names", "r") as f:
+	#with open("_classes.txt", "r") as f:
 		classes = [line.strip() for line in f.readlines()]
 
 	layers_names = net.getLayerNames()
@@ -54,6 +56,8 @@ def load_image(img_path):
 	return img, height, width, channels
 
 def start_webcam():
+	# 0 for webcam
+	# 1 for video
 	cap = cv2.VideoCapture(0)
     #exec(open("RealSenseStreaming.py").read())
 
