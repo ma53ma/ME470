@@ -18,11 +18,9 @@ args = parser.parse_args()
 
 #Load yolo
 def load_yolo():
-	net = cv2.dnn.readNet("yolov3.weights", "yolov3.cfg")
-	#net = cv2.dnn.readNet("custom-yolov4-detector_final.weights", "custom-yolov4-detector.cfg")
+	net = cv2.dnn.readNet("custom-yolov4-detector_final_mar_27.weights", "custom-yolov4-detector.cfg")
 	classes = []
-	with open("coco.names", "r") as f:
-	#with open("_classes.txt", "r") as f:
+	with open("_classes.txt", "r") as f:
 		classes = [line.strip() for line in f.readlines()]
 
 	layers_names = net.getLayerNames()
@@ -56,9 +54,7 @@ def load_image(img_path):
 	return img, height, width, channels
 
 def start_webcam():
-	# 0 for webcam
-	# 1 for video
-	cap = cv2.VideoCapture(0)
+	cap = cv2.VideoCapture(1)
     #exec(open("RealSenseStreaming.py").read())
 
 	return cap
@@ -71,6 +67,7 @@ def display_blob(blob):
 	for b in blob:
 		for n, imgb in enumerate(b):
 			cv2.imshow(str(n), imgb)
+
 
 def detect_objects(img, net, outputLayers):
 	blob = cv2.dnn.blobFromImage(img, scalefactor=0.00392, size=(320, 320), mean=(0, 0, 0), swapRB=True, crop=False)
@@ -87,6 +84,8 @@ def get_box_dimensions(outputs, height, width):
 			scores = detect[5:]
 			class_id = np.argmax(scores)
 			conf = scores[class_id]
+			if conf > 0:
+				print(conf)
 			if conf > .1:
 				center_x = int(detect[0] * width)
 				center_y = int(detect[1] * height)
@@ -99,8 +98,11 @@ def get_box_dimensions(outputs, height, width):
 				class_ids.append(class_id)
 	return boxes, confs, class_ids
 
+
+
 def draw_labels(boxes, confs, colors, class_ids, classes, img):
-	indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.5, 0.4)
+	indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.15, 0.1)
+    #indexes = cv2.dnn.boxes(boxes,confs)
 	font = cv2.FONT_HERSHEY_PLAIN
     #print(confs)
 	for i in range(len(boxes)):
