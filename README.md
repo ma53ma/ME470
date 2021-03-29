@@ -1,4 +1,5 @@
-# Initial terminal lines to enter to add the github to a local folder
+# Initial terminal lines to enter to add github to a local folder
+cd to folder you want github to be added to  
 git init  
 git remote add origin https://github.com/ma53ma/ME470.git  
 
