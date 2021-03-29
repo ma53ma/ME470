@@ -75,7 +75,7 @@ def detect_objects(img, net, outputLayers):
 	outputs = net.forward(outputLayers)
 	return blob, outputs
 
-def get_box_dimensions(outputs, height, width):
+def get_box_dimensions(outputs, height, width,classes):
 	boxes = []
 	confs = []
 	class_ids = []
@@ -85,7 +85,7 @@ def get_box_dimensions(outputs, height, width):
 			class_id = np.argmax(scores)
 			conf = scores[class_id]
 			if conf > 0:
-				print(conf)
+				print(str(classes[class_id]) + " " + str(conf))
 			if conf > .1:
 				center_x = int(detect[0] * width)
 				center_y = int(detect[1] * height)
@@ -118,7 +118,7 @@ def image_detect(img_path):
 	model, classes, colors, output_layers = load_yolo()
 	image, height, width, channels = load_image(img_path)
 	blob, outputs = detect_objects(image, model, output_layers)
-	boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
+	boxes, confs, class_ids = get_box_dimensions(outputs, height, width,classes)
 	draw_labels(boxes, confs, colors, class_ids, classes, image)
 	while True:
 		key = cv2.waitKey(1)
@@ -132,7 +132,7 @@ def webcam_detect():
 		_, frame = cap.read()
 		height, width, channels = frame.shape
 		blob, outputs = detect_objects(frame, model, output_layers)
-		boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
+		boxes, confs, class_ids = get_box_dimensions(outputs, height, width,classes)
 		draw_labels(boxes, confs, colors, class_ids, classes, frame)
 		key = cv2.waitKey(1)
 		if key == 27:
@@ -147,7 +147,7 @@ def start_video(video_path):
 		_, frame = cap.read()
 		height, width, channels = frame.shape
 		blob, outputs = detect_objects(frame, model, output_layers)
-		boxes, confs, class_ids = get_box_dimensions(outputs, height, width)
+		boxes, confs, class_ids = get_box_dimensions(outputs, height, width,classes)
 		draw_labels(boxes, confs, colors, class_ids, classes, frame)
 		key = cv2.waitKey(1)
 		if key == 27:
