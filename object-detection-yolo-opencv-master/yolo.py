@@ -146,6 +146,7 @@ def start_video(video_path):
 	while True:
 		_, frame = cap.read()
 		height, width, channels = frame.shape
+		print(frame.shape)
 		blob, outputs = detect_objects(frame, model, output_layers)
 		boxes, confs, class_ids = get_box_dimensions(outputs, height, width,classes)
 		draw_labels(boxes, confs, colors, class_ids, classes, frame)
