@@ -1,3 +1,4 @@
+
 import cv2
 import numpy as np
 import argparse
@@ -75,6 +76,20 @@ def detect_objects(img, net, outputLayers):
 	outputs = net.forward(outputLayers)
 	return blob, outputs
 
+def send_notif(x,y,w,h,height,width):
+	leftwheel=width/2-y/1
+	rightwheel=width/2
+	if(x < leftwheel+width/10 and x+w>rightwheel-width/10):
+		print('Hazard')
+		time.sleep(2)
+	elif( x < leftwheel+width/10 and x+w > leftwheel-width/10):
+		print('Hazard Left')
+		time.sleep(2)
+	elif( x < rightwheel+width/10 and x+w> rightwheel-width/10):
+		print('Hazard Right')
+		time.sleep(2)
+
+
 def get_box_dimensions(outputs, height, width,classes):
 	boxes = []
 	confs = []
@@ -96,6 +111,8 @@ def get_box_dimensions(outputs, height, width,classes):
 				boxes.append([x, y, w, h])
 				confs.append(float(conf))
 				class_ids.append(class_id)
+				if center_y > height/2:
+					send_notif(x,y,w,h,height,width)
 	return boxes, confs, class_ids
 
 
