@@ -4,6 +4,7 @@ import numpy as np
 import argparse
 import time
 
+last_notif = 0
 #This exec line streams from the realsense
 #exec(open("RealSenseStreaming.py").read())
 
@@ -16,6 +17,7 @@ parser.add_argument('--video_path', help="Path of video file", default="videos/c
 parser.add_argument('--image_path', help="Path of image to detect objects", default="Images/bicycle.jpg")
 parser.add_argument('--verbose', help="To print statements", default=True)
 args = parser.parse_args()
+
 
 #Load yolo
 def load_yolo():
@@ -77,17 +79,22 @@ def detect_objects(img, net, outputLayers):
 	return blob, outputs
 
 def send_notif(x,y,w,h,height,width):
+	global last_notif
 	leftwheel=width/2-y/1
 	rightwheel=width/2
-	if(x < leftwheel+width/10 and x+w>rightwheel-width/10):
+	if(x < leftwheel+width/10 and x+w>rightwheel-width/10) or ((x < leftwheel+width/10 and x+w > leftwheel-width/10) and ( x < rightwheel+width/10 and x+w> rightwheel-width/10)):
 		print('Hazard')
-		time.sleep(2)
-	elif( x < leftwheel+width/10 and x+w > leftwheel-width/10):
+		last_notif=time.time()
+		print('time.time()',time.time())
+	if( x < leftwheel+width/10 and x+w > leftwheel-width/10):
 		print('Hazard Left')
-		time.sleep(2)
-	elif( x < rightwheel+width/10 and x+w> rightwheel-width/10):
+		last_notif=time.time()
+		print('time.time()',time.time())
+	if( x < rightwheel+width/10 and x+w> rightwheel-width/10):
 		print('Hazard Right')
-		time.sleep(2)
+		last_notif=time.time()
+		print('time.time()',time.time())
+	return last_notif
 
 
 def get_box_dimensions(outputs, height, width,classes):
@@ -111,8 +118,9 @@ def get_box_dimensions(outputs, height, width,classes):
 				boxes.append([x, y, w, h])
 				confs.append(float(conf))
 				class_ids.append(class_id)
-				if center_y > height/2:
-					send_notif(x,y,w,h,height,width)
+				#if center_y > height/2:
+					#if time.time()-last_notif>2:
+						#send_notif(x,y,w,h,height,width)
 	return boxes, confs, class_ids
 
 
@@ -125,6 +133,13 @@ def draw_labels(boxes, confs, colors, class_ids, classes, img):
 	for i in range(len(boxes)):
 		if i in indexes:
 			x, y, w, h = boxes[i]
+			center_y = int(2*y + h)
+			height = 605
+			width = 806
+			if center_y > height / 2:
+				print(time.time()-last_notif)
+				if time.time()-last_notif>2:
+					send_notif(x, y, w, h, height, width)
 			label = str(classes[class_ids[i]]) + " " + str(confs[i])
 			color = colors[i]
 			cv2.rectangle(img, (x,y), (x+w, y+h), color, 2)
