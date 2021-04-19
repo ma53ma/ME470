@@ -22,6 +22,8 @@ args = parser.parse_args()
 #Load yolo
 def load_yolo():
 	net = cv2.dnn.readNet("custom-yolov4-detector_final_mar_27.weights", "custom-yolov4-detector.cfg")
+	net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
+	net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 	classes = []
 	with open("_classes.txt", "r") as f:
 		classes = [line.strip() for line in f.readlines()]
@@ -57,7 +59,7 @@ def load_image(img_path):
 	return img, height, width, channels
 
 def start_webcam():
-	cap = cv2.VideoCapture(1)
+	cap = cv2.VideoCapture(0)
     #exec(open("RealSenseStreaming.py").read())
 
 	return cap
@@ -125,7 +127,7 @@ def get_box_dimensions(outputs, height, width,classes):
 
 
 
-def draw_labels(boxes, confs, colors, class_ids, classes, img):
+def draw_labels(boxes, confs, colors, class_ids, classes, img, height, width):
 	indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.15, 0.1)
     #indexes = cv2.dnn.boxes(boxes,confs)
 	font = cv2.FONT_HERSHEY_PLAIN
@@ -134,8 +136,8 @@ def draw_labels(boxes, confs, colors, class_ids, classes, img):
 		if i in indexes:
 			x, y, w, h = boxes[i]
 			center_y = int(2*y + h)
-			height = 605
-			width = 806
+			#height = 605
+			#width = 806
 			if center_y > height / 2:
 				print(time.time()-last_notif)
 				if time.time()-last_notif>2:
@@ -151,7 +153,7 @@ def image_detect(img_path):
 	image, height, width, channels = load_image(img_path)
 	blob, outputs = detect_objects(image, model, output_layers)
 	boxes, confs, class_ids = get_box_dimensions(outputs, height, width,classes)
-	draw_labels(boxes, confs, colors, class_ids, classes, image)
+	draw_labels(boxes, confs, colors, class_ids, classes, image, height, width)
 	while True:
 		key = cv2.waitKey(1)
 		if key == 27:
@@ -165,11 +167,12 @@ def webcam_detect():
 		height, width, channels = frame.shape
 		blob, outputs = detect_objects(frame, model, output_layers)
 		boxes, confs, class_ids = get_box_dimensions(outputs, height, width,classes)
-		draw_labels(boxes, confs, colors, class_ids, classes, frame)
+		draw_labels(boxes, confs, colors, class_ids, classes, frame, height, width)
 		key = cv2.waitKey(1)
 		if key == 27:
 			break
 	cap.release()
+
 
 
 def start_video(video_path):
