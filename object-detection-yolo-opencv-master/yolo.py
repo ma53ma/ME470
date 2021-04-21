@@ -3,8 +3,13 @@ import cv2
 import numpy as np
 import argparse
 import time
+import os
+import slack_notifications as slack
+
 
 last_notif = 0
+last_left_notif=0
+last_right_notif=0
 #This exec line streams from the realsense
 #exec(open("RealSenseStreaming.py").read())
 
@@ -21,7 +26,7 @@ args = parser.parse_args()
 
 #Load yolo
 def load_yolo():
-	net = cv2.dnn.readNet("custom-yolov4-detector_final_mar_27.weights", "custom-yolov4-detector.cfg")
+	net = cv2.dnn.readNet("custom-yolov4-tiny-detector_3000.weights", "custom-yolov4-tiny-detector.cfg")
 	net.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 	net.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
 	classes = []
@@ -59,7 +64,7 @@ def load_image(img_path):
 	return img, height, width, channels
 
 def start_webcam():
-	cap = cv2.VideoCapture(0)
+	cap = cv2.VideoCapture(1)
     #exec(open("RealSenseStreaming.py").read())
 
 	return cap
@@ -82,20 +87,30 @@ def detect_objects(img, net, outputLayers):
 
 def send_notif(x,y,w,h,height,width):
 	global last_notif
+	global last_left_notif
+	global last_right_notif
+	#print(x)
+	#print(y)
 	leftwheel=width/2-y/1
 	rightwheel=width/2
 	if(x < leftwheel+width/10 and x+w>rightwheel-width/10) or ((x < leftwheel+width/10 and x+w > leftwheel-width/10) and ( x < rightwheel+width/10 and x+w> rightwheel-width/10)):
-		print('Hazard')
-		last_notif=time.time()
-		print('time.time()',time.time())
+		if time.time()-last_notif>2:
+			print('Hazard')
+			slack.send_notify('general', username='--HAZARD--', text='HAZARD')
+			last_notif=time.time()
+		#print('time.time()',time.time())
 	if( x < leftwheel+width/10 and x+w > leftwheel-width/10):
-		print('Hazard Left')
-		last_notif=time.time()
-		print('time.time()',time.time())
+		if time.time()-last_left_notif>2:
+			print('Hazard Left')
+			slack.send_notify('general', username='--HAZARD LEFT--', text='HAZARD LEFT')
+			last_left_notif=time.time()
+		#print('time.time()',time.time())
 	if( x < rightwheel+width/10 and x+w> rightwheel-width/10):
-		print('Hazard Right')
-		last_notif=time.time()
-		print('time.time()',time.time())
+		if time.time()-last_right_notif>2:
+			print('Hazard Right')
+			slack.send_notify('general', username='--HAZARD RIGHT--', text='HAZARD RIGHT')
+			last_right_notif=time.time()
+		#print('time.time()',time.time())
 	return last_notif
 
 
@@ -111,6 +126,7 @@ def get_box_dimensions(outputs, height, width,classes):
 			if conf > 0:
 				print(str(classes[class_id]) + " " + str(conf))
 			if conf > .1:
+				print(detect[1])
 				center_x = int(detect[0] * width)
 				center_y = int(detect[1] * height)
 				w = int(detect[2] * width)
@@ -135,13 +151,14 @@ def draw_labels(boxes, confs, colors, class_ids, classes, img, height, width):
 	for i in range(len(boxes)):
 		if i in indexes:
 			x, y, w, h = boxes[i]
-			center_y = int(2*y + h)
+			center_y = int(y + h/2)
 			#height = 605
 			#width = 806
-			if center_y > height / 2:
-				print(time.time()-last_notif)
-				if time.time()-last_notif>2:
-					send_notif(x, y, w, h, height, width)
+			#print(center_y)
+			#print(height)
+			print(center_y)
+			if center_y > 480 / 2 and center_y<(7*480/8):
+				send_notif(x, y, w, h, 480, 640)
 			label = str(classes[class_ids[i]]) + " " + str(confs[i])
 			color = colors[i]
 			cv2.rectangle(img, (x,y), (x+w, y+h), color, 2)
@@ -184,7 +201,7 @@ def start_video(video_path):
 		print(frame.shape)
 		blob, outputs = detect_objects(frame, model, output_layers)
 		boxes, confs, class_ids = get_box_dimensions(outputs, height, width,classes)
-		draw_labels(boxes, confs, colors, class_ids, classes, frame)
+		draw_labels(boxes, confs, colors, class_ids, classes, frame, height, width)
 		key = cv2.waitKey(1)
 		if key == 27:
 			break
