@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 import time
 import os
-import slack_notifications as slack
+#import slack_notifications as slack
 
 
 last_notif = 0
@@ -85,6 +85,7 @@ def detect_objects(img, net, outputLayers):
 	outputs = net.forward(outputLayers)
 	return blob, outputs
 
+'''
 def send_notif(x,y,w,h,height,width):
 	global last_notif
 	global last_left_notif
@@ -112,7 +113,7 @@ def send_notif(x,y,w,h,height,width):
 			last_right_notif=time.time()
 		#print('time.time()',time.time())
 	return last_notif
-
+'''
 
 def get_box_dimensions(outputs, height, width,classes):
 	boxes = []
