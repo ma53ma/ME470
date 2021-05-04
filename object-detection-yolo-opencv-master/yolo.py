@@ -76,21 +76,21 @@ def send_notif(x,y,w,h,height,width):
 	global last_right_notif
 	leftwheel=width/2-y/1 #path traced by left wheel
 	rightwheel=width/2 #path traced by right wheel (assume mounted over right wheel)
-	if(x < leftwheel+width/10 and x+w>rightwheel-width/10) or ((x < leftwheel+width/10 and x+w > leftwheel-width/10) and ( x < rightwheel+width/10 and x+w> rightwheel-width/10)):
-		if time.time()-last_notif>2:
+	if(x < leftwheel+width/10 and x+w>rightwheel-width/10) #if hazard spans the whole width
+		if time.time()-last_notif>2: #Only send notification if its been more than 2 seconds since same notification
 			print('Hazard')
 			slack.send_notify('general', username='--HAZARD--', text='HAZARD')
-			last_notif=time.time()
-	if( x < leftwheel+width/10 and x+w > leftwheel-width/10):
-		if time.time()-last_left_notif>2:
+			last_notif=time.time() #update last notification
+	if( x < leftwheel+width/10 and x+w > leftwheel-width/10): #if hazard i son path of left wheel
+		if time.time()-last_left_notif>2: #Only send notification if its been more than 2 seconds since same notification
 			print('Hazard Left')
 			slack.send_notify('general', username='--HAZARD LEFT--', text='HAZARD LEFT')
-			last_left_notif=time.time()
-	if( x < rightwheel+width/10 and x+w> rightwheel-width/10):
-		if time.time()-last_right_notif>2:
+			last_left_notif=time.time() #update last notification
+	if( x < rightwheel+width/10 and x+w> rightwheel-width/10): #if hazard on path of right wheel
+		if time.time()-last_right_notif>2: #Only send notification if its been more than 2 seconds since same notification
 			print('Hazard Right')
 			slack.send_notify('general', username='--HAZARD RIGHT--', text='HAZARD RIGHT')
-			last_right_notif=time.time()
+			last_right_notif=time.time() #update last notification
 	return last_notif
 
 def get_box_dimensions(outputs, height, width,classes):
@@ -105,12 +105,12 @@ def get_box_dimensions(outputs, height, width,classes):
 			if conf > 0:
 				print(str(classes[class_id]) + " " + str(conf))
 			if conf > .1:
-				center_x = int(detect[0] * width)
-				center_y = int(detect[1] * height)
-				w = int(detect[2] * width)
-				h = int(detect[3] * height)
-				x = int(center_x - w/2)
-				y = int(center_y - h / 2)
+				center_x = int(detect[0] * width) #center of hazard in pixels x direction
+				center_y = int(detect[1] * height) #center of hazard in pixels y direction
+				w = int(detect[2] * width) #width of hazard in pixels
+				h = int(detect[3] * height) #height of hazard in pixels
+				x = int(center_x - w/2) #left edge
+				y = int(center_y - h / 2) #top edge
 				boxes.append([x, y, w, h])
 				confs.append(float(conf))
 				class_ids.append(class_id)
