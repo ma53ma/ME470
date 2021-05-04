@@ -4,16 +4,16 @@ import numpy as np
 import argparse
 import time
 import os
-#import slack_notifications as slack
+import slack_notifications as slack
 
-
+#These varialbes are used to space out notifications
 last_notif = 0
 last_left_notif=0
 last_right_notif=0
 #This exec line streams from the realsense
 #exec(open("RealSenseStreaming.py").read())
 
-
+#select the input
 parser = argparse.ArgumentParser()
 parser.add_argument('--webcam', help="True/False", default=False)
 parser.add_argument('--play_video', help="Tue/False", default=False)
@@ -38,24 +38,9 @@ def load_yolo():
 	colors = np.random.uniform(0, 255, size=(len(classes), 3))
 	return net, classes, colors, output_layers
 
-''' #something taken from a keras example
-def yolo_body(inputs, num_anchors, num_classes):
-    """Create YOLO_V3 model CNN body in Keras."""
-    darknet = Model(inputs, darknet_body(inputs))
-    x, y1 = make_last_layers(darknet.output, 512, num_anchors*(num_classes+5))
-    x = compose(
-            DarknetConv2D_BN_Leaky(256, (1,1)),
-            UpSampling2D(2))(x)
-    x = Concatenate()([x,darknet.layers[152].output])
-    x, y2 = make_last_layers(x, 256, num_anchors*(num_classes+5))
-    x = compose(
-            DarknetConv2D_BN_Leaky(128, (1,1)),
-            UpSampling2D(2))(x)
-    x = Concatenate()([x,darknet.layers[92].output])
-    x, y3 = make_last_layers(x, 128, num_anchors*(num_classes+5))
-    return Model(inputs, [y1,y2,y3])
-	'''
 
+
+#used if we have photo as input
 def load_image(img_path):
 	# image loading
 	img = cv2.imread(img_path)
@@ -63,10 +48,9 @@ def load_image(img_path):
 	height, width, channels = img.shape
 	return img, height, width, channels
 
+#Used if using webcam
 def start_webcam():
-	cap = cv2.VideoCapture(1)
-    #exec(open("RealSenseStreaming.py").read())
-
+	cap = cv2.VideoCapture(1) #Change this number to proper input
 	return cap
 
 
@@ -85,35 +69,29 @@ def detect_objects(img, net, outputLayers):
 	outputs = net.forward(outputLayers)
 	return blob, outputs
 
-'''
+#This function sends the notifications
 def send_notif(x,y,w,h,height,width):
 	global last_notif
 	global last_left_notif
 	global last_right_notif
-	#print(x)
-	#print(y)
-	leftwheel=width/2-y/1
-	rightwheel=width/2
+	leftwheel=width/2-y/1 #path traced by left wheel
+	rightwheel=width/2 #path traced by right wheel (assume mounted over right wheel)
 	if(x < leftwheel+width/10 and x+w>rightwheel-width/10) or ((x < leftwheel+width/10 and x+w > leftwheel-width/10) and ( x < rightwheel+width/10 and x+w> rightwheel-width/10)):
 		if time.time()-last_notif>2:
 			print('Hazard')
 			slack.send_notify('general', username='--HAZARD--', text='HAZARD')
 			last_notif=time.time()
-		#print('time.time()',time.time())
 	if( x < leftwheel+width/10 and x+w > leftwheel-width/10):
 		if time.time()-last_left_notif>2:
 			print('Hazard Left')
 			slack.send_notify('general', username='--HAZARD LEFT--', text='HAZARD LEFT')
 			last_left_notif=time.time()
-		#print('time.time()',time.time())
 	if( x < rightwheel+width/10 and x+w> rightwheel-width/10):
 		if time.time()-last_right_notif>2:
 			print('Hazard Right')
 			slack.send_notify('general', username='--HAZARD RIGHT--', text='HAZARD RIGHT')
 			last_right_notif=time.time()
-		#print('time.time()',time.time())
 	return last_notif
-'''
 
 def get_box_dimensions(outputs, height, width,classes):
 	boxes = []
@@ -127,7 +105,6 @@ def get_box_dimensions(outputs, height, width,classes):
 			if conf > 0:
 				print(str(classes[class_id]) + " " + str(conf))
 			if conf > .1:
-				print(detect[1])
 				center_x = int(detect[0] * width)
 				center_y = int(detect[1] * height)
 				w = int(detect[2] * width)
@@ -137,30 +114,20 @@ def get_box_dimensions(outputs, height, width,classes):
 				boxes.append([x, y, w, h])
 				confs.append(float(conf))
 				class_ids.append(class_id)
-				#if center_y > height/2:
-					#if time.time()-last_notif>2:
-						#send_notif(x,y,w,h,height,width)
 	return boxes, confs, class_ids
 
 
 
 def draw_labels(boxes, confs, colors, class_ids, classes, img, height, width):
 	indexes = cv2.dnn.NMSBoxes(boxes, confs, 0.15, 0.1)
-    #indexes = cv2.dnn.boxes(boxes,confs)
 	font = cv2.FONT_HERSHEY_PLAIN
-    #print(confs)
 	for i in range(len(boxes)):
 		if i in indexes:
 			x, y, w, h = boxes[i]
-			center_y = int(y + h/2)
-			#height = 605
-			#width = 806
-			#print(center_y)
-			#print(height)
-			print(center_y)
-			if center_y > 480 / 2 and center_y<(7*480/8):
-				send_notif(x, y, w, h, 480, 640)
-			label = str(classes[class_ids[i]]) + " " + str(confs[i])
+			center_y = int(y + h/2) #center of hazard in pixels
+			if center_y > 480 / 2 and center_y<(7*480/8): #if in bottom half of frame but not in bottom 1/8
+				send_notif(x, y, w, h, 480, 640) #Call notification function
+			label = str(classes[class_ids[i]]) + " " + str(confs[i]) #Displays on display
 			color = colors[i]
 			cv2.rectangle(img, (x,y), (x+w, y+h), color, 2)
 			cv2.putText(img, label, (x, y - 5), font, 1, color, 1)
@@ -199,7 +166,6 @@ def start_video(video_path):
 	while True:
 		_, frame = cap.read()
 		height, width, channels = frame.shape
-		print(frame.shape)
 		blob, outputs = detect_objects(frame, model, output_layers)
 		boxes, confs, class_ids = get_box_dimensions(outputs, height, width,classes)
 		draw_labels(boxes, confs, colors, class_ids, classes, frame, height, width)
