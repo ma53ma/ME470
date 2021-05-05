@@ -11,3 +11,13 @@ git add ______
 
 git commit -m "first commit"  
 git push -u origin main
+
+# Lines to enter if you run into issues with the above lines
+git pull origin main --allow-unrelated-histories  
+
+git add ____________  
+
+git commit -m "commit message here"  
+
+git push origin HEAD:main  
+
