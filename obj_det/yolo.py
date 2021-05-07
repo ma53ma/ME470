@@ -4,7 +4,7 @@ import numpy as np
 import argparse
 import time
 import os
-import slack_notifications as slack
+#import slack_notifications as slack
 
 #These varialbes are used to space out notifications
 last_notif = 0
@@ -76,7 +76,7 @@ def send_notif(x,y,w,h,height,width):
 	global last_right_notif
 	leftwheel=width/2-y/1 #path traced by left wheel
 	rightwheel=width/2 #path traced by right wheel (assume mounted over right wheel)
-	if(x < leftwheel+width/10 and x+w>rightwheel-width/10) #if hazard spans the whole width
+	if(x < leftwheel+width/10 and x+w>rightwheel-width/10): #if hazard spans the whole width
 		if time.time()-last_notif>2: #Only send notification if its been more than 2 seconds since same notification
 			print('Hazard')
 			slack.send_notify('general', username='--HAZARD--', text='HAZARD')
