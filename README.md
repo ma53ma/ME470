@@ -30,7 +30,7 @@ language used: Python
 Here opencv is used alongside yolo for object detection using image processing.
 
 Sources:
-[1] https://towardsdatascience.com/object-detection-using-yolov3-and-opencv-19ee0792a420?gi=82dd13e620a9
+[1] https://towardsdatascience.com/object-detection-using-yolov3-and-opencv-19ee0792a420?gi=82dd13e620a9  
 This blog post provides a tutorial that teaches beginners how to get started interfacing OpenCV with YOLOv3. This tutorial provides you with the necessary Python libraries to run YOLOv3 as well as example code and functions of YOLOv3 in use.  
 [2] https://blog.roboflow.com/training-a-yolov3-object-detection-model-with-a-custom-dataset/  
 This blog post is home to the Google Colab notebook that was used at the beginning of this semester to train YOLOv3 using a custom dataset. While the team shifted away from YOLOv3 during this semester, this link is helpful to further understand the process of training object detection algorithms.  
