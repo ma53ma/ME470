@@ -24,6 +24,12 @@ git push origin HEAD:main
 
 
 
-# Links that code is pulled from to create this repository 
-[1] https://blog.roboflow.com/training-a-yolov3-object-detection-model-with-a-custom-dataset/  
-[2] https://towardsdatascience.com/object-detection-using-yolov3-and-opencv-19ee0792a420?gi=82dd13e620a9  
+# Links that code is pulled from to create this repository and anything else we used
+packages used: cv2,numpy,argparse,time
+language used: Python
+Here opencv is used alongside yolo for object detection using image processing.
+
+Sources:
+[1] https://towardsdatascience.com/object-detection-using-yolov3-and-opencv-19ee0792a420?gi=82dd13e620a9
+[2] https://blog.roboflow.com/training-a-yolov3-object-detection-model-with-a-custom-dataset/
+[3] https://www.tutorialspoint.com/batch_script/batch_script_syntax.htm
