@@ -23,6 +23,7 @@ git push origin HEAD:main
 
 #Troubleshooting
 - Check to make sure your webcam index is the correct number, you might have to try numbers ~0-5 until you get the right one.
+  Line 53: cv2.videocapture(x).
 - Make sure you have the correct version of opencv installed, at least 4.5.1.
 
 # Links that code is pulled from to create this repository and anything else we used
