@@ -21,3 +21,9 @@ git commit -m "commit message here"
 
 git push origin HEAD:main  
 
+
+
+
+# Links that code is pulled from to create this repository 
+[1] https://blog.roboflow.com/training-a-yolov3-object-detection-model-with-a-custom-dataset/ 
+[2] https://towardsdatascience.com/object-detection-using-yolov3-and-opencv-19ee0792a420?gi=82dd13e620a9 
