@@ -21,13 +21,13 @@ git commit -m "commit message here"
 
 git push origin HEAD:main  
 
-#Install Procedure
+# Install Procedure
 1. Download latest release and extract files in directory of your choice
 2. Install Python (minimum tested compatible version 3.7)
 3. Use Python's pip command to install the latest version of opencv (min version 4.5.1)
 4. Run script based on your operating system to launch the program
 
-#Troubleshooting
+# Troubleshooting
 - Check to make sure your webcam index is the correct number, you might have to try numbers ~0-5 until you get the right one.
   Line 53: cv2.videocapture(x).
 - Make sure you have the correct version of opencv installed, at least 4.5.1.
